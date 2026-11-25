@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verificação de Segurança</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    body {
+      background-color: #f2f2f2;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      color: #333333;
+      padding: 16px;
+    }
+
+    .card {
+      background: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 36px 28px;
+      max-width: 380px;
+      width: 100%;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: #202124;
+      margin-bottom: 8px;
+    }
+
+    p.subtitle {
+      font-size: 0.92rem;
+      color: #5f6368;
+      margin-bottom: 26px;
+      line-height: 1.4;
+    }
+
+    /* Caixa estilo reCAPTCHA clássica */
+    .recaptcha-box {
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 302px;
+      height: 76px;
+      background: #f9f9f9;
+      border: 1px solid #d3d3d3;
+      border-radius: 3px;
+      box-shadow: 0 0 4px 1px rgba(0, 0, 0, 0.06);
+      padding: 0 12px;
+      user-select: none;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .recaptcha-box:hover {
+      background: #f7f7f7;
+    }
+
+    .recaptcha-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .checkbox-container {
+      width: 28px;
+      height: 28px;
+      background: #ffffff;
+      border: 2px solid #c1c1c1;
+      border-radius: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.2s;
+      flex-shrink: 0;
+    }
+
+    .recaptcha-box:hover .checkbox-container {
+      border-color: #b2b2b2;
+    }
+
+    .label-text {
+      font-size: 14px;
+      color: #222222;
+      font-weight: 400;
+    }
+
+    /* Animação de carregamento */
+    .spinner {
+      display: none;
+      width: 16px;
+      height: 16px;
+      border: 2.5px solid #4285f4;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    /* Ícone de sucesso */
+    .checkmark {
+      display: none;
+      width: 18px;
+      height: 18px;
+      color: #0f9d58;
+    }
+
+    /* Estados da caixa */
+    .recaptcha-box.loading {
+      cursor: wait;
+    }
+    .recaptcha-box.loading .checkbox-container {
+      border: none;
+      background: transparent;
+    }
+    .recaptcha-box.loading .spinner {
+      display: block;
+    }
+
+    .recaptcha-box.verified {
+      cursor: default;
+    }
+    .recaptcha-box.verified .checkbox-container {
+      border: none;
+      background: transparent;
+    }
+    .recaptcha-box.verified .checkmark {
+      display: block;
+      animation: pop 0.25s ease-out;
+    }
+
+    /* Lado direito do reCAPTCHA */
+    .recaptcha-right {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+    }
+
+    .recaptcha-logo {
+      width: 26px;
+      height: 26px;
+    }
+
+    .brand-title {
+      font-size: 10px;
+      color: #555555;
+      font-weight: 500;
+      letter-spacing: -0.2px;
+    }
+
+    .brand-links {
+      font-size: 8px;
+      color: #555555;
+    }
+
+    .brand-links span {
+      margin: 0 1px;
+    }
+
+    /* Status e Mensagens */
+    .status-msg {
+      margin-top: 18px;
+      font-size: 0.88rem;
+      min-height: 22px;
+      color: #1a73e8;
+      font-weight: 500;
+    }
+
+    .status-msg.success {
+      color: #0f9d58;
+    }
+
+    .fallback-link {
+      display: block;
+      margin-top: 12px;
+      font-size: 0.82rem;
+      color: #1a73e8;
+      text-decoration: none;
+    }
+
+    .fallback-link:hover {
+      text-decoration: underline;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes pop {
+      0% { transform: scale(0.4); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <main class="card">
+    <h1>Verificação de Segurança</h1>
+    <p class="subtitle">Confirme que você não é um robô para continuar.</p>
+
+    <!-- Caixa de verificação limpa e sem erros de chave -->
+    <div class="recaptcha-box" id="recaptchaBox" role="button" tabindex="0" aria-label="Não sou um robô">
+      <div class="recaptcha-left">
+        <div class="checkbox-container" id="checkboxContainer">
+          <div class="spinner"></div>
+          <svg class="checkmark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        </div>
+        <span class="label-text" id="labelText">Não sou um robô</span>
+      </div>
+
+      <div class="recaptcha-right" aria-hidden="true">
+        <svg class="recaptcha-logo" viewBox="0 0 48 48" fill="none">
+          <path d="M24 4C12.95 4 4 12.95 4 24C4 35.05 12.95 44 24 44C35.05 44 44 35.05 44 24C44 12.95 35.05 4 24 4Z" fill="#4285F4" fill-opacity="0.1"/>
+          <path d="M36 24C36 30.63 30.63 36 24 36C17.37 36 12 30.63 12 24C12 17.37 17.37 12 24 12C27.05 12 29.83 13.14 31.95 15.02L27.93 19.04C26.85 18.06 25.49 17.47 24 17.47C20.4 17.47 17.47 20.4 17.47 24C17.47 27.6 20.4 30.53 24 30.53C27.24 30.53 29.93 28.16 30.43 25.07H24V19.73H35.85C35.95 20.47 36 21.22 36 22V24Z" fill="#4285F4"/>
+        </svg>
+        <span class="brand-title">reCAPTCHA</span>
+        <span class="brand-links">Privacidade<span>•</span>Termos</span>
+      </div>
+    </div>
+
+    <div class="status-msg" id="statusMsg"></div>
+    <a href="https://www.jornaldeangola.ao/" class="fallback-link" id="fallbackLink" style="display: none;">
+      Clique aqui se não for redirecionado
+    </a>
+  </main>
+
+  <script>
+    const REDIRECT_URL = "https://www.jornaldeangola.ao/";
+    const box = document.getElementById("recaptchaBox");
+    const label = document.getElementById("labelText");
+    const statusMsg = document.getElementById("statusMsg");
+    const fallbackLink = document.getElementById("fallbackLink");
+
+    let isDone = false;
+
+    function handleVerify() {
+      if (isDone) return;
+      isDone = true;
+
+      box.classList.add("loading");
+      label.textContent = "A verificar...";
+      statusMsg.textContent = "Validando a verificação...";
+
+      setTimeout(() => {
+        box.classList.remove("loading");
+        box.classList.add("verified");
+        label.textContent = "Verificado com sucesso";
+        statusMsg.classList.add("success");
+        statusMsg.textContent = "Verificação concluída! A redirecionar...";
+        fallbackLink.style.display = "block";
+
+        setTimeout(() => {
+          try {
+            if (window.top && window.top !== window.self) {
+              window.top.location.href = REDIRECT_URL;
+            } else {
+              window.location.href = REDIRECT_URL;
+            }
+          } catch (e) {
+            window.location.href = REDIRECT_URL;
+          }
+        }, 800);
+      }, 1000);
+    }
+
+    box.addEventListener("click", handleVerify);
+    box.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        handleVerify();
+      }
+    });
+  </script>
+</body>
+</html>
